@@ -1,41 +1,64 @@
 # Network Traffic Analyzer
 
+A Python-based tool for real-time packet capture and network traffic analysis. Designed for educational use, cybersecurity practice, and portfolio demonstration. It supports multiple protocols, customizable filters, and user-friendly terminal output.
+
+---
+
 ## Quick Installation
 
 - [Quick Install for Windows](#quick-install-for-windows)
-- [Quick Install for Linux/macOS](#quick-install-for-linuxmacos)
+- [Quick Install for Linuxmacos](#quick-install-for-linux--macos)
 
-## Project Description
-Network Traffic Analyzer is a Python tool for capturing and analyzing network packets in real time. It recognizes common protocols, displays statistics, and allows you to save clean output to a file. Designed for learning and portfolio demonstration.
+---
 
 ## Features
-- Select network interface
-- Filter packets by protocol, port, or custom filter
-- Protocol recognition (TCP, UDP, ARP, DNS, TLS, etc.)
+
+- Selectable network interface
+- Packet filtering by protocol, port, or custom expression
+- Real-time protocol recognition (TCP, UDP, ARP, DNS, TLS, etc.)
 - Color-coded terminal output
-- Save output to file (without colors)
-- Show protocol statistics
-- User-friendly terminal prompts
+- Clean, savable output (without color codes)
+- Protocol statistics summary
+- Interactive command-line interface
+
+---
 
 ## Requirements
+
 - Python 3.x
-- [Scapy](https://scapy.net/) (`pip install scapy`)
-- [Colorama](https://pypi.org/project/colorama/) (`pip install colorama`)
-- Administrator/root privileges for packet capture
+- Administrator/root privileges for packet capturing  
+- Python packages:
+  - Scapy – `pip install scapy`
+  - Colorama – `pip install colorama`
+
+---
 
 ## Installation
+
 ```bash
 pip install scapy colorama
 ```
 
+---
+
 ## Usage
-Run the analyzer with root privileges:
+
+Run the analyzer with root/administrator privileges:
+
 ```bash
 sudo python3 nta.py
 ```
-Follow the prompts to select interface, set packet count, and filter. You can save the output and statistics to a file.
+
+You will be guided through:
+- Network interface selection
+- Packet count limit
+- Optional filtering
+- Option to save output and protocol statistics
+
+---
 
 ## Example Output
+
 ```
 [19:49:15] DNS Query (UDP port 53) | fe80::878:9e47:8ad5:b0c0 -> ff02::fb | domain: LIFX White to Warm 667871._hap._tcp.local.
 [19:49:15] HTTPS (TCP A) | 20.189.173.15:443 -> 192.168.1.148:53228 | size: 66 bytes
@@ -48,99 +71,70 @@ UDP6: 2
 OTHER: 1
 ```
 
+---
+
 ## Project Structure
-- `nta.py` — main analyzer script
-- `test` — sample output file
-- `build.sh` / `build.bat` — build scripts for creating standalone executables
 
-## License
-MIT License
+```
+nta.py         # Main analyzer script
+test/          # Example output files
+build.sh       # Build script for Linux/macOS
+build.bat      # Build script for Windows
+```
 
-## Author
-Diego
-
-## Contributing
-Pull requests and suggestions are welcome.
-
-## TODO / Planned Improvements
-- Export to CSV/JSON
-- Unit tests
-- More protocol support
-- GUI version
+---
 
 ## Building an Executable
 
 ### Quick Install for Linux/macOS
 
-If needed, make the script executable:
 ```bash
 chmod +x build.sh
-```
-Run the build script:
-```bash
 ./build.sh
-```
-Then run the compiled executable with root privileges:
-```bash
 sudo ./nta
 ```
 
 ### Quick Install for Windows
 
-Run the build script as Administrator:
+Run in Command Prompt as Administrator:
+
 ```cmd
 build.bat
-```
-Then run the compiled executable as Administrator:
-```cmd
 nta.exe
 ```
 
 The build scripts will:
-- Create a virtual environment
+- Set up a virtual environment
 - Install all dependencies
 - Build a standalone executable using PyInstaller
-- Clean up build files
+- Clean up temporary build files
 
 **Note:**  
-You can run the executable (`nta` or `nta.exe`) directly, without Python or pip. Always run it with administrator/root privileges for packet capture.
+The generated executable (`nta` or `nta.exe`) is portable and does not require Python or pip to run. Always execute it with administrator/root privileges.
 
-## Tips
-- Always run the executable with administrator/root privileges for packet capture.
-- The executable is portable and does not require Python or pip on the target machine.
-- For development, you can still run the Python script directly.
-Suppose you want to add a new feature, like exporting results to CSV, but you don't want to break the main code while working on it. You can:
+---
 
-1. **Create a new branch for the feature:**
-   ```bash
-   git checkout -b export-csv
-   ```
-2. **Work on your changes in this branch.**  
-   You can make mistakes or experiment without affecting the main code.
+## Roadmap / TODO
 
-3. **Commit your changes:**
-   ```bash
-   git add .
-   git commit -m "Add CSV export feature"
-   ```
+- Export results to CSV and JSON
+- Add unit tests
+- Extend protocol support
+- Develop a GUI version
 
-4. **Switch back to the main branch and merge your feature:**
-   ```bash
-   git checkout master
-   git merge export-csv
-   ```
+---
 
-5. **Now the main branch has your new feature, and you can delete the feature branch:**
-   ```bash
-   git branch -d export-csv
-   ```
+## Contributing
 
-**This way, you can:**
-- Work on multiple features or bugfixes at the same time (each in its own branch)
-- Keep the main code stable
-- Only merge finished and tested features into the main branch
+Contributions, suggestions, and pull requests are welcome!
 
-## Tips
-- Always run the executable with administrator/root privileges for packet capture.
-- The executable is portable and does not require Python or pip on the target machine.
-- For development, you can still run the Python script directly.
+---
+
+## License
+
+This project is licensed under the MIT License.
+
+---
+
+## Author
+
+mazanivan
