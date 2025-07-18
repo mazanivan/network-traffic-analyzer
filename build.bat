@@ -1,15 +1,39 @@
 @echo off
-REM Build script for Network Traffic Analyzer (Windows)
+REM Simple build script for Network Traffic Analyzer (Windows)
 
-echo Building Network Traffic Analyzer executable for Windows...
+REM Show current directory and files for debugging
+cd
+dir /b
+echo.
+
+REM Install dependencies (requirements.txt must be in the same folder)
+pip install -r requirements.txt
+
+REM Install PyInstaller
+pip install pyinstaller
+
+REM Build executable
+pyinstaller --onefile --name nta nta.py
+
+REM Copy executable to main directory
+if exist dist\nta.exe copy dist\nta.exe nta.exe
+
+REM Clean up build files
+if exist build rmdir /s /q build
+if exist dist rmdir /s /q dist
+if exist nta.spec del nta.spec
+
+echo Build complete! Executable: nta.exe
+pause
+    echo NOT FOUND: requirements
+)
+echo.
 
 REM Install dependencies directly (no virtual environment)
 echo Installing dependencies...
 if exist requirements.txt (
-    echo Found requirements.txt
     pip install -r requirements.txt
 ) else if exist requirements (
-    echo Found requirements file without extension
     pip install -r requirements
 ) else (
     echo Requirements file not found, installing packages directly...
@@ -55,17 +79,6 @@ if exist dist\nta.exe (
 )
 
 REM Clean up build files
-echo Cleaning up...
-if exist build rmdir /s /q build
-if exist dist rmdir /s /q dist
-if exist *.spec del *.spec
-
-echo.
-echo ===================================
-echo Build complete! Executable: nta.exe
-echo Usage: nta.exe (run as Administrator)
-echo ===================================
-pause
 echo Cleaning up...
 if exist build rmdir /s /q build
 if exist dist rmdir /s /q dist
