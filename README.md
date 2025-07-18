@@ -6,8 +6,7 @@ A Python-based tool for real-time packet capture and network traffic analysis. D
 
 ## Quick Installation
 
-- [Quick Install for Windows](#quick-install-for-windows)
-- [Quick Install for Linuxmacos](#quick-install-for-linux--macos)
+- [Quick Install for Linux/macOS](#quick-install-for-linuxmacos)
 
 ---
 
@@ -79,7 +78,6 @@ OTHER: 1
 nta.py         # Main analyzer script
 test/          # Example output files
 build.sh       # Build script for Linux/macOS
-build.bat      # Build script for Windows
 ```
 
 ---
@@ -94,23 +92,11 @@ chmod +x build.sh
 sudo ./nta
 ```
 
-### Quick Install for Windows
-
-Run in Command Prompt as Administrator:
-
-```cmd
-build.bat
-nta.exe
-```
-
-The build scripts will:
+The build script will:
 - Set up a virtual environment
 - Install all dependencies
 - Build a standalone executable using PyInstaller
 - Clean up temporary build files
-
-**Note:**  
-The generated executable (`nta` or `nta.exe`) is portable and does not require Python or pip to run. Always execute it with administrator/root privileges.
 
 ---
 
@@ -131,6 +117,20 @@ Contributions, suggestions, and pull requests are welcome!
 
 ## License
 
+This project is licensed under the MIT License.
+
+---
+
+## Author
+
+mazanivan
+This project is licensed under the MIT License.
+
+---
+
+## Author
+
+mazanivan
 This project is licensed under the MIT License.
 
 ---
