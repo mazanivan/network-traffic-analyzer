@@ -1,3 +1,4 @@
 scapy==2.5.0
 colorama>=0.4.0
+pyinstaller>=5.0.0
 # Add any other dependencies here

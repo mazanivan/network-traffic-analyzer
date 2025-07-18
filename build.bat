@@ -11,7 +11,14 @@ if not exist ".venv" (
 
 REM Activate venv and install dependencies
 echo Installing dependencies...
-.venv\Scripts\pip install -r requirements.txt
+if exist requirements.txt (
+    .venv\Scripts\pip install -r requirements.txt
+) else if exist requirements (
+    .venv\Scripts\pip install -r requirements
+) else (
+    echo Requirements file not found, installing packages directly...
+    .venv\Scripts\pip install scapy==2.5.0 colorama>=0.4.0
+)
 .venv\Scripts\pip install pyinstaller
 
 REM Build executable
