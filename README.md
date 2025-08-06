@@ -1,140 +1,124 @@
 # Network Traffic Analyzer
 
-A Python-based tool for real-time packet capture and network traffic analysis. Designed for educational use, cybersecurity practice, and portfolio demonstration. It supports multiple protocols, customizable filters, and user-friendly terminal output.
+A Python tool for real-time packet capture and network traffic analysis.  
+Great for learning, cybersecurity practice, and portfolio projects.
 
 ---
 
-## Quick Installation
+## ✅ Features
 
-- [Quick Install for Linux/macOS](#quick-install-for-linuxmacos)
-
----
-
-## Features
-
-- Selectable network interface
-- Packet filtering by protocol, port, or custom expression
-- Real-time protocol recognition (TCP, UDP, ARP, DNS, TLS, etc.)
+- Choose your network interface
+- Filter packets by protocol, port, or custom expression
+- Live analysis of common protocols (TCP, UDP, ARP, DNS, TLS...)
 - Color-coded terminal output
-- Clean, savable output (without color codes)
-- Protocol statistics summary
-- Interactive command-line interface
+- Option to save clean output and statistics
+- Protocol summary at the end
 
 ---
 
-## Requirements
+## 📦 Quick Setup
 
-- Python 3.x
-- Administrator/root privileges for packet capturing  
-- Python packages:
-  - Scapy – `pip install scapy`
-  - Colorama – `pip install colorama`
-
----
-
-## Installation
+### 1. Clone the repository
 
 ```bash
-pip install scapy colorama
-```
+git clone https://github.com/<your-username>/network-traffic-analyzer.git
+cd network-traffic-analyzer
+# Network Traffic Analyzer
+
+A Python tool for real-time packet capture and network traffic analysis.  
+Great for learning, cybersecurity practice, and portfolio projects.
+
+➡️ [Jump to Installation Guide](#-quick-setup)
 
 ---
 
-## Usage
+## ✅ Features
 
-Run the analyzer with root/administrator privileges:
+- Choose your network interface
+- Filter packets by protocol, port, or custom expression
+- Live analysis of common protocols (TCP, UDP, ARP, DNS, TLS...)
+- Color-coded terminal output
+- Option to save clean output and statistics
+- Protocol summary at the end
 
-```bash
-sudo python3 nta.py
-```
+---
+
+## 📦 Quick Setup
+
+### 1. Clone the repository
+
+git clone https://github.com/<your-username>/network-traffic-analyzer.git  
+cd network-traffic-analyzer
+
+### 2. Install dependencies
+
+If you're using Debian/Ubuntu with Python 3.12+:
+
+pip install --break-system-packages -r requirements.txt
+
+---
+
+## ⚠️ Important
+
+Scapy must be installed for the **same user who runs the script**.  
+If you install it as a normal user but run the script with `sudo`, it won’t work.
+
+✅ To avoid this issue, **use `sudo -E` when running the script**. This preserves your environment and Python packages:
+
+sudo -E python3 nta.py
+
+> ❌ Do not use just `sudo python3 nta.py` – it will likely result in:  
+> `ModuleNotFoundError: No module named 'scapy'`
+
+---
+
+## ▶️ Usage
+
+Run the analyzer with:
+
+sudo -E python3 nta.py
 
 You will be guided through:
-- Network interface selection
-- Packet count limit
-- Optional filtering
+
+- Network interface selection  
+- Capture limits  
+- Optional filtering  
 - Option to save output and protocol statistics
 
 ---
 
-## Example Output
+## 📋 Example Output
 
-```
-[19:49:15] DNS Query (UDP port 53) | fe80::878:9e47:8ad5:b0c0 -> ff02::fb | domain: LIFX White to Warm 667871._hap._tcp.local.
-[19:49:15] HTTPS (TCP A) | 20.189.173.15:443 -> 192.168.1.148:53228 | size: 66 bytes
---------------------------------------------------STATS--------------------------------------------------
-UDP: 5
-STP: 11
-ARP: 24
+[19:49:15] HTTPS (TCP A) | 20.189.173.15:443 -> 192.168.1.148:53228 | size: 66 bytes  
+--------------------------------------------------STATS--------------------------------------------------  
+UDP: 5  
+ARP: 24  
 HTTPS: 7
-UDP6: 2
-OTHER: 1
-```
 
 ---
 
-## Project Structure
+## 📁 Files
 
-```
-nta.py         # Main analyzer script
-test/          # Example output files
-build.sh       # Build script for Linux/macOS
-```
+nta.py           # Main program  
+requirements.txt # Dependencies  
+README.md        # This file
 
 ---
 
-## Building an Executable
+## 🛠️ TODO
 
-### Quick Install for Linux/macOS
-
-```bash
-chmod +x build.sh
-./build.sh
-sudo ./nta
-```
-
-The build script will:
-- Set up a virtual environment
-- Install all dependencies
-- Build a standalone executable using PyInstaller
-- Clean up temporary build files
+- Export to CSV/JSON  
+- Add testing  
+- GUI version
 
 ---
 
-## Roadmap / TODO
+## 📄 License
 
-- Export results to CSV and JSON
-- Add unit tests
-- Extend protocol support
-- Develop a GUI version
+MIT License
 
 ---
 
-## Contributing
+## 👤 Author
 
-Contributions, suggestions, and pull requests are welcome!
-
----
-
-## License
-
-This project is licensed under the MIT License.
-
----
-
-## Author
-
-mazanivan
-This project is licensed under the MIT License.
-
----
-
-## Author
-
-mazanivan
-This project is licensed under the MIT License.
-
----
-
-## Author
-
-mazanivan
+[@mazanivan](https://github.com/mazanivan)
