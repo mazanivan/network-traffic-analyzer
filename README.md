@@ -3,15 +3,17 @@
 A Python tool for real-time packet capture and network traffic analysis.  
 Great for learning, cybersecurity practice, and portfolio projects.
 
+➡️ [Jump to Installation Guide](#-quick-setup)
+
 ---
 
 ## ✅ Features
 
-- Choose your network interface
-- Filter packets by protocol, port, or custom expression
-- Live analysis of common protocols (TCP, UDP, ARP, DNS, TLS...)
-- Color-coded terminal output
-- Option to save clean output and statistics
+- Choose your network interface  
+- Filter packets by protocol, port, or custom expression  
+- Live analysis of common protocols (TCP, UDP, ARP, DNS, TLS...)  
+- Color-coded terminal output  
+- Option to save clean output and statistics  
 - Protocol summary at the end
 
 ---
@@ -23,38 +25,15 @@ Great for learning, cybersecurity practice, and portfolio projects.
 ```bash
 git clone https://github.com/<your-username>/network-traffic-analyzer.git
 cd network-traffic-analyzer
-# Network Traffic Analyzer
-
-A Python tool for real-time packet capture and network traffic analysis.  
-Great for learning, cybersecurity practice, and portfolio projects.
-
-➡️ [Jump to Installation Guide](#-quick-setup)
-
----
-
-## ✅ Features
-
-- Choose your network interface
-- Filter packets by protocol, port, or custom expression
-- Live analysis of common protocols (TCP, UDP, ARP, DNS, TLS...)
-- Color-coded terminal output
-- Option to save clean output and statistics
-- Protocol summary at the end
-
----
-
-## 📦 Quick Setup
-
-### 1. Clone the repository
-
-git clone https://github.com/<your-username>/network-traffic-analyzer.git  
-cd network-traffic-analyzer
+```
 
 ### 2. Install dependencies
 
 If you're using Debian/Ubuntu with Python 3.12+:
 
+```bash
 pip install --break-system-packages -r requirements.txt
+```
 
 ---
 
@@ -63,20 +42,22 @@ pip install --break-system-packages -r requirements.txt
 Scapy must be installed for the **same user who runs the script**.  
 If you install it as a normal user but run the script with `sudo`, it won’t work.
 
-✅ To avoid this issue, **use `sudo -E` when running the script**. This preserves your environment and Python packages:
+✅ To avoid this issue, use `sudo -E` when running the script. This preserves your environment and Python packages:
 
+```bash
 sudo -E python3 nta.py
+```
 
-> ❌ Do not use just `sudo python3 nta.py` – it will likely result in:  
+> ❌ Do **not** use just `sudo python3 nta.py` – it will likely result in:  
 > `ModuleNotFoundError: No module named 'scapy'`
 
 ---
 
 ## ▶️ Usage
 
-Run the analyzer with:
-
+```bash
 sudo -E python3 nta.py
+```
 
 You will be guided through:
 
@@ -89,19 +70,23 @@ You will be guided through:
 
 ## 📋 Example Output
 
-[19:49:15] HTTPS (TCP A) | 20.189.173.15:443 -> 192.168.1.148:53228 | size: 66 bytes  
---------------------------------------------------STATS--------------------------------------------------  
-UDP: 5  
-ARP: 24  
+```text
+[19:49:15] HTTPS (TCP A) | 20.189.173.15:443 -> 192.168.1.148:53228 | size: 66 bytes
+--------------------------------------------------STATS--------------------------------------------------
+UDP: 5
+ARP: 24
 HTTPS: 7
+```
 
 ---
 
 ## 📁 Files
 
+```
 nta.py           # Main program  
 requirements.txt # Dependencies  
 README.md        # This file
+```
 
 ---
 
