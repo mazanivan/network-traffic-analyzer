@@ -1,22 +1,29 @@
 # Network Traffic Analyzer
 
-Jednoduchý terminálový nástroj na sledovanie sieťovej prevádzky v reálnom čase. Projekt je postavený na Pythone a knižnici Scapy, takže je vhodný hlavne na učenie, školské/lab prostredie a rýchle lokálne testy.
+Network Traffic Analyzer is a small command-line tool for capturing and inspecting network traffic in real time. It is built with Python and Scapy, and is intended for learning, lab work, troubleshooting, and basic traffic visibility on a local machine.
 
-Nie je to enterprise IDS. Je to malý packet analyzer, ktorý ti ukáže, čo približne tečie cez vybrané sieťové rozhranie.
+This is not a replacement for a full IDS, packet forensic platform, or Wireshark. It focuses on readable terminal output and simple protocol statistics.
 
-## Čo vie
+## Features
 
-- 🔎 výber sieťového rozhrania
-- 📦 live zachytávanie paketov cez Scapy
-- 🎯 filtre typu `tcp`, `udp`, `port 53`, `tcp and port 443`
-- 🌐 rozpoznanie bežných protokolov ako DNS, HTTP, HTTPS/TLS, SSH, ARP, ICMP
-- 🧾 uloženie čitateľného výstupu do súboru
-- 📊 jednoduché štatistiky podľa protokolov
-- ⚙️ interaktívne ovládanie aj CLI argumenty
+- Lists available network interfaces
+- Captures packets from a selected interface
+- Supports BPF filters such as `tcp`, `udp`, `port 53`, or `tcp and port 443`
+- Identifies common protocols including DNS, HTTP, HTTPS/TLS, SSH, ARP, and ICMP
+- Prints colorized live output in the terminal
+- Saves captured output to a text file
+- Optionally appends protocol statistics to saved output
+- Supports both interactive use and command-line arguments
 
-## Inštalácia
+## Requirements
 
-Odporúčam použiť virtuálne prostredie. Vyhneš sa problémom so systémovým Pythonom a `sudo`.
+- Python 3.9 or newer
+- Linux, macOS, or another system supported by Scapy
+- Administrator/root permissions for live packet capture
+
+## Installation
+
+Using a virtual environment is recommended:
 
 ```bash
 git clone https://github.com/mazanivan/network-traffic-analyzer.git
@@ -28,62 +35,70 @@ pip install -U pip
 pip install -e .
 ```
 
-Ak nechceš inštalovať projekt ako príkaz, stačí aj:
+Alternatively, install only the dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Spustenie
+## Usage
 
-Najjednoduchšie:
+After installing with `pip install -e .`, run:
 
 ```bash
 sudo -E nta
 ```
 
-Alebo priamo cez Python:
+You can also run the script directly:
 
 ```bash
 sudo -E python3 nta.py
 ```
 
-`sudo -E` je dôležité, keď používaš virtuálne prostredie. Zachová tvoje premenné prostredia, takže Python nájde balíčky nainštalované vo `.venv`.
+The `sudo -E` option preserves the current environment. This is useful when the dependencies are installed inside a virtual environment, because plain `sudo python3 nta.py` may use a different Python environment.
 
-## Príklady
+## Command-Line Examples
 
-Vypísať dostupné rozhrania:
+List available interfaces:
 
 ```bash
 sudo -E nta --list-interfaces
 ```
 
-Zachytiť 20 DNS paketov na rozhraní `wlan0`:
+Capture 20 DNS packets on `wlan0`:
 
 ```bash
 sudo -E nta -i wlan0 -c 20 -f "port 53"
 ```
 
-Zachytiť HTTPS/TLS prevádzku a uložiť výstup aj so štatistikou:
+Capture HTTPS/TLS traffic and save the output with statistics:
 
 ```bash
 sudo -E nta -i wlan0 -c 50 -f "tcp port 443" -o captures/https.txt --stats
 ```
 
-Ak nevieš názov rozhrania, môžeš použiť aj číslo zo zoznamu:
+Use an interface number from `--list-interfaces`:
 
 ```bash
 sudo -E nta -i 1 -c 10
 ```
 
-## Poznámky
+## Filter Syntax
 
-- Na Linuxe potrebuješ práva na packet capture, preto sa program typicky spúšťa cez `sudo`.
-- Filtre sú BPF filtre, rovnaký štýl ako pri `tcpdump`.
-- Pri neobmedzenom zachytávaní ho zastavíš cez `Ctrl+C`.
-- Výstup je textový, nie PCAP. Na PCAP export by bolo treba doplniť samostatné ukladanie paketov.
+Filters use the same BPF syntax used by tools such as `tcpdump`.
 
-## Ukážka výstupu
+Examples:
+
+```text
+tcp
+udp
+port 53
+host 192.168.1.1
+tcp and port 443
+not port 22
+```
+
+## Example Output
 
 ```text
 [19:49:15] HTTPS/TLS Client Hello (TCP PA) | 192.168.1.148:53228 -> 20.189.173.15:443 | Encrypted | size: 512 bytes
@@ -91,15 +106,22 @@ sudo -E nta -i 1 -c 10
 [19:49:17] ARP Request | Who has 192.168.1.1? Tell 192.168.1.148 | size: 42 bytes
 ```
 
-Viac je v `examples/sample-output.txt`.
+A longer sample is available in `examples/sample-output.txt`.
 
-## Súbory
+## Notes
 
-- `nta.py` - hlavný program
-- `requirements.txt` - jednoduchý zoznam balíčkov
-- `pyproject.toml` - inštalácia projektu a príkaz `nta`
-- `examples/sample-output.txt` - krátka ukážka výstupu
+- Live packet capture usually requires root or administrator privileges.
+- The saved output is plain text, not PCAP.
+- Stop an unlimited capture with `Ctrl+C`.
+- Protocol detection is based on packet layers, common ports, and lightweight TLS handshake checks. It is intentionally simple and may not identify every protocol correctly.
 
-## Autor
+## Project Structure
+
+- `nta.py` - main application
+- `requirements.txt` - dependency list for direct installation
+- `pyproject.toml` - package metadata and `nta` console command
+- `examples/sample-output.txt` - sample text output
+
+## Author
 
 [@mazanivan](https://github.com/mazanivan)
