@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
 """
-Network Traffic Analyzer - Basic project
+Network Traffic Analyzer
 Author: Diego
 Date: 28.6.2025
 
-This project will help you learn the basics of network analysis.
+Small terminal tool for live packet capture and basic protocol analysis.
 """
 
+import argparse
 import os
 import re
 import time
+import warnings
+
+warnings.filterwarnings("ignore", message=".*TripleDES.*", category=Warning)
+
 import scapy.all as scapy
 from colorama import init, Fore, Style
 
@@ -64,11 +69,13 @@ TLS_HANDSHAKE_TYPES = {
 PROTOCOL_HISTORY = []
 
 
-def main():
+def main(argv=None):
     """
     Main program function
     """
-    print("🔍 Network Traffic Analyzer - Starting!")
+    args = parse_args(argv)
+
+    print("Network Traffic Analyzer - starting")
     print("=" * 50)
 
     interfaces = show_network_interfaces()
@@ -77,36 +84,115 @@ def main():
         print("No interfaces found...")
         return
 
-    option = interfaces[choose_option(len(interfaces)) - 1]
+    if args.list_interfaces:
+        return
+
+    option = resolve_interface(args.interface, interfaces)
+    if option is None:
+        if args.interface is not None:
+            return
+        option = interfaces[choose_option(len(interfaces)) - 1]
+
     print(f"Selected interface: {option}")
-    capture_packets(option)
+    capture_packets(
+        option,
+        packet_count=args.count,
+        filter_option=args.capture_filter,
+        interactive=args.interface is None,
+    )
     if not PROTOCOL_HISTORY:
         return
-    save_option = ask_save(
-        "Do you want to save your output ? y/n: "
-    )
-    stats_option = ask_save(
-        "Do you want to add statistic to end of your file ? y/n: "
-    )
+
+    if args.output:
+        save_output(args.output, args.stats)
+        return
+
+    save_option = ask_save("Do you want to save the output? y/n: ")
     if save_option == "y":
-        file_name = input("Choose your filename: ")
-        try:
-            with open(file_name, "w") as file:
-                for line in PROTOCOL_HISTORY:
-                    file.write(line + "\n")
-                print(50 * "-")
-                if stats_option == "y":
-                    file.write(50 * "-")
-                    file.write("STATS")
-                    file.write(50 * "-" + "\n")
-                    for proto, number in PROTO_STAT.items():
-                        file.write(f"{proto}: {number}\n")
-                    for proto, number in PROTO_STAT.items():
-                        print(f"{proto}: {number}")
-            print(f"Output saved to {file_name}")
-        except Exception as e:
-            print(f"Error saving file: {e}")
-            print("Try different file name!")
+        stats_option = ask_save("Add protocol statistics to the file? y/n: ")
+        file_name = input("Choose filename: ").strip()
+        save_output(file_name, stats_option == "y")
+
+
+def parse_args(argv=None):
+    parser = argparse.ArgumentParser(
+        description="Capture packets and print a readable protocol summary."
+    )
+    parser.add_argument(
+        "-i",
+        "--interface",
+        help="interface name or number from --list-interfaces",
+    )
+    parser.add_argument(
+        "-c",
+        "--count",
+        type=int,
+        help="number of packets to capture; omit for unlimited capture",
+    )
+    parser.add_argument(
+        "-f",
+        "--filter",
+        dest="capture_filter",
+        help="BPF filter, for example: 'tcp', 'udp', 'port 53'",
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        help="save captured output to a text file",
+    )
+    parser.add_argument(
+        "--stats",
+        action="store_true",
+        help="append protocol statistics when --output is used",
+    )
+    parser.add_argument(
+        "--list-interfaces",
+        action="store_true",
+        help="print interfaces and exit",
+    )
+    args = parser.parse_args(argv)
+    if args.count is not None and args.count <= 0:
+        parser.error("--count must be greater than 0")
+    return args
+
+
+def resolve_interface(interface, interfaces):
+    if interface is None:
+        return None
+
+    if interface.isdigit():
+        index = int(interface)
+        if 1 <= index <= len(interfaces):
+            return interfaces[index - 1]
+
+    if interface in interfaces:
+        return interface
+
+    print(f"Interface not found: {interface}")
+    return None
+
+
+def save_output(file_name, include_stats=False):
+    if not file_name:
+        print("Filename cannot be empty.")
+        return
+
+    try:
+        output_dir = os.path.dirname(file_name)
+        if output_dir:
+            os.makedirs(output_dir, exist_ok=True)
+
+        with open(file_name, "w", encoding="utf-8") as file:
+            for line in PROTOCOL_HISTORY:
+                file.write(line + "\n")
+            if include_stats:
+                file.write("\n" + 50 * "-" + "STATS" + 50 * "-" + "\n")
+                for proto, number in sorted(PROTO_STAT.items()):
+                    file.write(f"{proto}: {number}\n")
+        print(f"Output saved to {file_name}")
+    except OSError as e:
+        print(f"Error saving file: {e}")
+        print("Try a different filename or path.")
 
 
 def show_network_interfaces():
@@ -147,37 +233,35 @@ def ask_continue():
             print("Invalid option!")
 
 
-def capture_packets(interface):
+def capture_packets(interface, packet_count=None, filter_option=None, interactive=True):
     """
     Function for capturing packets
     """
-    # Ask for settings only once
-    while True:
-        packet_count = input(
-            "How many packets do you want to capture? (Enter = unlimited): "
-        )
-        if packet_count == "":
-            packet_count = None
-            break
-        try:
-            packet_count = int(packet_count)
-            if packet_count > 0:
+    if interactive:
+        while True:
+            packet_count_input = input(
+                "How many packets do you want to capture? (Enter = unlimited): "
+            )
+            if packet_count_input == "":
+                packet_count = None
                 break
-            else:
+            try:
+                packet_count = int(packet_count_input)
+                if packet_count > 0:
+                    break
                 print("Enter a number greater than 0 or press Enter.")
-        except ValueError:
-            print("Enter a number or press Enter.")
+            except ValueError:
+                print("Enter a number or press Enter.")
 
-    print(
-        "\nEnter filter for packet capture (e.g. 'tcp', 'udp', 'port 80', "
-        "'tcp and port 80', 'tcp or udp')"
-    )
-    print(
-        "Use and, or, not, port, ip, tcp, udp, icmp...\nFor everything, "
-        "press Enter."
-    )
-
-    filter_option = input("Enter filter: ")
+        print(
+            "\nEnter filter for packet capture (e.g. 'tcp', 'udp', 'port 80', "
+            "'tcp and port 80', 'tcp or udp')"
+        )
+        print(
+            "Use and, or, not, port, ip, tcp, udp, icmp...\nFor everything, "
+            "press Enter."
+        )
+        filter_option = input("Enter filter: ").strip() or None
 
     # Main capture loop - use the same settings until user chooses "don't keep"
     # settings"
@@ -201,11 +285,13 @@ def capture_packets(interface):
             print("Packet capture completed.")
         except KeyboardInterrupt:
             print("\nPacket capture stopped by user (Ctrl+C).")
+            if not interactive:
+                return
             repeat, keep = ask_continue()
             if not repeat:
                 return
             if not keep:
-                return capture_packets(interface)
+                return capture_packets(interface, interactive=True)
             # else: keep settings, continue with same settings
         except PermissionError:
             os.system("cls" if os.name == "nt" else "clear")
@@ -217,14 +303,18 @@ def capture_packets(interface):
             return
         except Exception as e:
             print(f"Error in filter or packet count: {e}\nTry again.")
+            if not interactive:
+                return
             continue
         # If sniffing completes successfully (e.g., after packet count),
         # ask to continue
+        if not interactive:
+            return
         repeat, keep = ask_continue()
         if not repeat:
             return
         if not keep:
-            return capture_packets(interface)
+            return capture_packets(interface, interactive=True)
         # else: keep settings, continue with same settings
 
 
@@ -237,6 +327,7 @@ def analyze_packet(packet):
     proto = "-"
     src_ip = dst_ip = src_port = dst_port = "-"
     osi_layer = "?"
+    text = None
 
     # ARP protocol detection
     if packet.haslayer(scapy.ARP):
@@ -331,12 +422,14 @@ def analyze_packet(packet):
                 text = (f"{t} {Fore.RED}DNS{Style.RESET_ALL} Query "
                         f"(UDP port 53) | {src_ip} -> {dst_ip} | "
                         f"domain: {qname}")
+                proto = "DNS"
             elif packet.haslayer(scapy.TCP):
                 text = (f"{t} {Fore.RED}DNS{Style.RESET_ALL} Query "
                         f"(TCP port 53) | {src_ip} -> {dst_ip} | "
                         f"domain: {qname}")
+                proto = "DNS"
         except Exception:
-            pass
+            text = None
 
     # TLS/SSL encrypted connections - show both app and transport protocol
     elif tls_detection(packet) and (proto == "TCP" or proto == "TCP6"):
@@ -372,11 +465,11 @@ def analyze_packet(packet):
                     f"{src_ip}:{src_port} -> {dst_ip}:{dst_port} | "
                     f"Encrypted on port {dst_port} | "
                     f"size: {size} bytes")
-            proto = "POP3S/TLS"
+            proto = "TLS/SSL"
 
     # Protocol detection by port number (from dictionary)
-    elif (proto == "TCP" or proto == "TCP6" or
-          proto == "UDP" or proto == "UDP6"):
+    if text is None and (proto == "TCP" or proto == "TCP6" or
+                         proto == "UDP" or proto == "UDP6"):
         proto_name = (PORT_PROTOCOLS.get(dst_port) or
                       PORT_PROTOCOLS.get(src_port))
 
@@ -419,25 +512,25 @@ def analyze_packet(packet):
                         f"size: {size} bytes{Style.RESET_ALL}")
 
     # TCP packets with flags (backup case)
-    elif proto == "TCP" or proto == "TCP6":
+    elif text is None and (proto == "TCP" or proto == "TCP6"):
         tcp_flags = packet[scapy.TCP].flags
         text = (f"{t} {Fore.GREEN}TCP{Style.RESET_ALL} ({tcp_flags}) | "
                 f"{src_ip}:{src_port} -> {dst_ip}:{dst_port} | "
                 f"size: {size} bytes")
 
     # UDP packets (backup case)
-    elif proto == "UDP" or proto == "UDP6":
+    elif text is None and (proto == "UDP" or proto == "UDP6"):
         text = (f"{t} {Fore.BLUE}UDP{Style.RESET_ALL} | "
                 f"{src_ip}:{src_port} -> {dst_ip}:{dst_port} | "
                 f"size: {size} bytes")
 
     # Unknown/unspecified protocols
-    elif proto == "OTHER":
+    elif text is None and proto == "OTHER":
         text = (f"{Fore.RED}[{t}] UNSPECIFIED/UNKNOWN PROTOCOL "
                 f"(could be GRE, ESP, IGMP, OSPF, etc.){Style.RESET_ALL}")
 
     # ARP packet details - who is asking for whom
-    elif proto == "ARP":
+    elif text is None and proto == "ARP":
         if packet[scapy.ARP].op == 1:  # ARP Request
             text = (f"{t} {Fore.YELLOW}ARP{Style.RESET_ALL} Request | "
                     f"Who has {dst_ip}? Tell {src_ip} | "
@@ -450,7 +543,7 @@ def analyze_packet(packet):
             text = (f"{t} {Fore.YELLOW}ARP{Style.RESET_ALL} "
                     f"(OSI {osi_layer}) | {src_ip} -> {dst_ip} | "
                     f"size: {size} bytes")
-    elif osi_layer == "2 (Link)":
+    elif text is None and osi_layer == "2 (Link)":
         if packet.haslayer(scapy.Dot3):
             text = (
                 f"{t} {Fore.BLACK}{Style.BRIGHT}{proto}{Style.RESET_ALL} "
@@ -471,7 +564,7 @@ def analyze_packet(packet):
             )
 
     # All other protocols
-    else:
+    if text is None:
         text = (f"{t}{proto} (OSI {osi_layer}) | "
                 f"{src_ip}:{src_port} -> {dst_ip}:{dst_port} | "
                 f"size: {size} bytes")

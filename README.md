@@ -1,109 +1,105 @@
 # Network Traffic Analyzer
 
-A Python tool for real-time packet capture and network traffic analysis.  
-Great for learning, cybersecurity practice, and portfolio projects.
+Jednoduchý terminálový nástroj na sledovanie sieťovej prevádzky v reálnom čase. Projekt je postavený na Pythone a knižnici Scapy, takže je vhodný hlavne na učenie, školské/lab prostredie a rýchle lokálne testy.
 
-➡️ [Jump to Installation Guide](#-quick-setup)
+Nie je to enterprise IDS. Je to malý packet analyzer, ktorý ti ukáže, čo približne tečie cez vybrané sieťové rozhranie.
 
----
+## Čo vie
 
-## ✅ Features
+- 🔎 výber sieťového rozhrania
+- 📦 live zachytávanie paketov cez Scapy
+- 🎯 filtre typu `tcp`, `udp`, `port 53`, `tcp and port 443`
+- 🌐 rozpoznanie bežných protokolov ako DNS, HTTP, HTTPS/TLS, SSH, ARP, ICMP
+- 🧾 uloženie čitateľného výstupu do súboru
+- 📊 jednoduché štatistiky podľa protokolov
+- ⚙️ interaktívne ovládanie aj CLI argumenty
 
-- Choose your network interface  
-- Filter packets by protocol, port, or custom expression  
-- Live analysis of common protocols (TCP, UDP, ARP, DNS, TLS...)  
-- Color-coded terminal output  
-- Option to save clean output and statistics  
-- Protocol summary at the end
+## Inštalácia
 
----
-
-## 📦 Quick Setup
-
-### 1. Clone the repository
+Odporúčam použiť virtuálne prostredie. Vyhneš sa problémom so systémovým Pythonom a `sudo`.
 
 ```bash
-git clone https://github.com/<your-username>/network-traffic-analyzer.git
+git clone https://github.com/mazanivan/network-traffic-analyzer.git
 cd network-traffic-analyzer
+
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -U pip
+pip install -e .
 ```
 
-### 2. Install dependencies
-
-If you're using Debian/Ubuntu with Python 3.12+:
+Ak nechceš inštalovať projekt ako príkaz, stačí aj:
 
 ```bash
-pip install --break-system-packages -r requirements.txt
+pip install -r requirements.txt
 ```
 
----
+## Spustenie
 
-## ⚠️ Important
-
-Scapy must be installed for the **same user who runs the script**.  
-If you install it as a normal user but run the script with `sudo`, it won’t work.
-
-✅ To avoid this issue, use `sudo -E` when running the script. This preserves your environment and Python packages:
+Najjednoduchšie:
 
 ```bash
-sudo -E python3 nta.py
+sudo -E nta
 ```
 
-> ❌ Do **not** use just `sudo python3 nta.py` – it will likely result in:  
-> `ModuleNotFoundError: No module named 'scapy'`
-
----
-
-## ▶️ Usage
+Alebo priamo cez Python:
 
 ```bash
 sudo -E python3 nta.py
 ```
 
-You will be guided through:
+`sudo -E` je dôležité, keď používaš virtuálne prostredie. Zachová tvoje premenné prostredia, takže Python nájde balíčky nainštalované vo `.venv`.
 
-- Network interface selection  
-- Capture limits  
-- Optional filtering  
-- Option to save output and protocol statistics
+## Príklady
 
----
+Vypísať dostupné rozhrania:
 
-## 📋 Example Output
+```bash
+sudo -E nta --list-interfaces
+```
+
+Zachytiť 20 DNS paketov na rozhraní `wlan0`:
+
+```bash
+sudo -E nta -i wlan0 -c 20 -f "port 53"
+```
+
+Zachytiť HTTPS/TLS prevádzku a uložiť výstup aj so štatistikou:
+
+```bash
+sudo -E nta -i wlan0 -c 50 -f "tcp port 443" -o captures/https.txt --stats
+```
+
+Ak nevieš názov rozhrania, môžeš použiť aj číslo zo zoznamu:
+
+```bash
+sudo -E nta -i 1 -c 10
+```
+
+## Poznámky
+
+- Na Linuxe potrebuješ práva na packet capture, preto sa program typicky spúšťa cez `sudo`.
+- Filtre sú BPF filtre, rovnaký štýl ako pri `tcpdump`.
+- Pri neobmedzenom zachytávaní ho zastavíš cez `Ctrl+C`.
+- Výstup je textový, nie PCAP. Na PCAP export by bolo treba doplniť samostatné ukladanie paketov.
+
+## Ukážka výstupu
 
 ```text
-[19:49:15] HTTPS (TCP A) | 20.189.173.15:443 -> 192.168.1.148:53228 | size: 66 bytes
---------------------------------------------------STATS--------------------------------------------------
-UDP: 5
-ARP: 24
-HTTPS: 7
+[19:49:15] HTTPS/TLS Client Hello (TCP PA) | 192.168.1.148:53228 -> 20.189.173.15:443 | Encrypted | size: 512 bytes
+[19:49:16] DNS Query (UDP port 53) | 192.168.1.148 -> 192.168.1.1 | domain: example.com.
+[19:49:17] ARP Request | Who has 192.168.1.1? Tell 192.168.1.148 | size: 42 bytes
 ```
 
----
+Viac je v `examples/sample-output.txt`.
 
-## 📁 Files
+## Súbory
 
-```
-nta.py           # Main program  
-requirements.txt # Dependencies  
-README.md        # This file
-```
+- `nta.py` - hlavný program
+- `requirements.txt` - jednoduchý zoznam balíčkov
+- `pyproject.toml` - inštalácia projektu a príkaz `nta`
+- `examples/sample-output.txt` - krátka ukážka výstupu
 
----
-
-## 🛠️ TODO
-
-- Export to CSV/JSON  
-- Add testing  
-- GUI version
-
----
-
-## 📄 License
-
-MIT License
-
----
-
-## 👤 Author
+## Autor
 
 [@mazanivan](https://github.com/mazanivan)
